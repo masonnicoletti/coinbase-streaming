@@ -21,7 +21,7 @@ def set_window(record_time):
 
 
 
-def parse_data(key, value):
+def parse_data(key, value, record_time):
 
     entry = {
         "type": key,
@@ -38,7 +38,7 @@ def parse_data(key, value):
         "best_ask": value.get("best_ask"),
         "best_ask_size": value.get("best_ask_size"),
         "side": value.get("side"),
-        "time": value.get("time"),
+        "time": record_time,
         "trade_id": value.get("trade_id"),
         "last_size": value.get("last_size") 
     }
@@ -112,7 +112,7 @@ def main():
                         buffer.clear()
                         window_start, window_end = set_window(record_time)
                     
-                    entry = parse_data(key, value)
+                    entry = parse_data(key, value, record_time)
                     buffer.append(entry)
 
                     print(f"Key: {key}")

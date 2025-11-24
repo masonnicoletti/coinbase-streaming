@@ -2,3 +2,12 @@
 Pipfile
 Pipfile.lock
 requirements.txt
+
+# Ignore log files
+logs
+logs/*
+
+# Ignore duckdb
+coinbase.duckdb
+*.duckdb
+*.db
