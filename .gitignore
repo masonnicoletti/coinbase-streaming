@@ -1,3 +1,4 @@
 # Ignore virtual environment elements
 Pipfile
+Pipfile.lock
 requirements.txt

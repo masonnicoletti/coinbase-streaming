@@ -24,13 +24,13 @@ async def stream_coinbase():
             websocket_uri,
             ping_interval=20,
             ping_timeout=20,
-            close_timeout=10
+            close_timeout=30
         )
         print("Connected to Coinbase Websocket")
 
         subscribe_payload = {
         "type": "subscribe",
-        "channels": [{"name": "ticker", "product_ids": ["BTC-USD", "ETH-USD"]}]
+        "channels": [{"name": "ticker", "product_ids": ["BTC-USD", "ETH-USD", "SOL-USD"]}]
         }
 
         await websocket.send(json.dumps(subscribe_payload))
