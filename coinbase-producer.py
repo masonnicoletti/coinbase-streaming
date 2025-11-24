@@ -56,10 +56,12 @@ async def stream_coinbase():
                 
                 except websockets.ConnectionClosed as e:
                     print(f"Connection closed: {e}")
-                    break
+                    await asyncio.sleep(5)
+                    continue
                 
                 except Exception as e:
                     print(f"Error: {e}")
+                    await asyncio.sleep(5)
                     continue
     
     except Exception as e:
