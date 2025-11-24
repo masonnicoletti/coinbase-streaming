@@ -38,35 +38,39 @@ async def stream_coinbase():
         with app.get_producer() as producer:
 
             while True:
-                try:
-                    message = await websocket.recv()
-                    data = json.loads(message)
-                    print(data)
 
-                    key = data['type']
+                retries = 0
+                while retries < 10:
 
-                    serialized = topic.serialize(key=key, value=data)
+                    try:
+                        message = await websocket.recv()
+                        data = json.loads(message)
+                        print(data)
 
-                    producer.produce(
-                        topic=topic.name,
-                        key=serialized.key,
-                        value=serialized.value
-                    )
-                    print("Produced a message to Kafka")
-                
-                except websockets.ConnectionClosed as e:
-                    print(f"Connection closed: {e}")
-                    await asyncio.sleep(5)
-                    continue
-                
-                except Exception as e:
-                    print(f"Error: {e}")
-                    await asyncio.sleep(5)
-                    continue
+                        key = data['type']
+
+                        serialized = topic.serialize(key=key, value=data)
+
+                        producer.produce(
+                            topic=topic.name,
+                            key=serialized.key,
+                            value=serialized.value
+                        )
+                        print("Produced a message to Kafka")
+                    
+                    except websockets.ConnectionClosed as e:
+                        retries += 1
+                        print(f"Connection closed: {e}")
+                        await asyncio.sleep(5)
+                    
+                    except Exception as e:
+                        retries += 1
+                        print(f"Error: {e}")
+                        await asyncio.sleep(5)
     
     except Exception as e:
         print(f"Connection error: {e}")
-        await asyncio.sleep(5)
+        await asyncio.sleep(60)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,10 @@
+import os
 import json
 import re
 import time
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from datetime import timedelta, datetime
 from quixstreams import Application
 
@@ -9,10 +12,11 @@ kafka_broker = "localhost:19092"
 
 
 
-def set_window():
+def set_window(record_time):
 
-    window_start = datetime.now().replace(minute=0, second=0, microsecond=0)
+    window_start = record_time.replace(minute=0, second=0, microsecond=0)
     window_end = window_start + timedelta(hours=1)
+
     return window_start, window_end
 
 
@@ -46,9 +50,19 @@ def parse_data(key, value):
 def write_parquet(data, window_start):
 
     df = pd.DataFrame(data)
+    table = pa.Table.from_pandas(df)
+
     timestamp = window_start.strftime("%Y-%m-%d_%H")
     filename = f"./data/coinbase_{timestamp}.parquet"
-    df.to_parquet(filename, index=False)
+    
+    if os.path.exists(filename):
+        existing_table = pq.read_table(filename)
+        new_table = pa.concat_tables([existing_table, table])
+        pq.write_table(new_table, filename)
+    
+    else:
+        #df.to_parquet(filename, index=False)
+        pq.write_table(table, filename)
 
 
 
@@ -61,9 +75,8 @@ def main():
         auto_offset_reset="earliest"
     )
 
-
-    window_start, window_end = set_window()
     buffer = []
+    window_start = None
 
     with app.get_consumer() as consumer:
 
@@ -85,23 +98,27 @@ def main():
                     value = json.loads(message.value())
                     offset = message.offset()
 
-                    record_time = datetime.now()
+                    if key != "ticker":
+                        continue
+
+                    time_string = value.get("time")
+                    record_time = datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+                    if window_start is None:
+                        window_start, window_end = set_window(record_time)
 
                     if record_time >= window_end:
                         write_parquet(buffer, window_start)
                         buffer.clear()
-                        window_start, window_end = set_window()
+                        window_start, window_end = set_window(record_time)
+                    
+                    entry = parse_data(key, value)
+                    buffer.append(entry)
 
                     print(f"Key: {key}")
                     print(f"Value: {value}")
-                    print(f"Offset: {offset}")
                     print(f"Record time: {record_time}")
-                    print(f"Window start: {window_start}")
-                    print(f"Window end: {window_end}")
-
-                    if key == "ticker":
-                        entry = parse_data(key, value)
-                        buffer.append(entry)
+                    print(f"Offset: {offset}")
 
                     consumer.store_offsets(message)
         
