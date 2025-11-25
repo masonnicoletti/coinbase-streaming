@@ -16,7 +16,7 @@ logging.basicConfig(
     filename='./logs/coinbase_consumer.log',
     level=logging.INFO, 
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filemode='w'
+    filemode='a'
 )
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def consume_coinbase():
                     # Define initial window
                     if window_start is None:
                         window_start, window_end = set_window(record_time)
-                        logger.info(f"Recording data from: {window_start} - {window_end}")
+                        logger.info(f"Recording window from: {window_start} - {window_end}")
 
                     # Write data to parquet file if window is over
                     if record_time >= window_end:
@@ -137,7 +137,7 @@ def consume_coinbase():
                         logger.info(f"Finished recording to coinbase_{window_start} file")
                         buffer.clear()
                         window_start, window_end = set_window(record_time)
-                        logger.info(f"Recording data from: {window_start} - {window_end}")
+                        logger.info(f"Recording window from: {window_start} - {window_end}")
                     
                     # Parse new message and store in memory
                     entry = parse_data(key, value, record_time)
@@ -149,7 +149,7 @@ def consume_coinbase():
                     print(f"Record time: {record_time}")
                     print(f"Offset: {offset}")
 
-                    if offset % 1000:
+                    if offset % 1000 == 0:
                         logger.info(f"Recorded {offset} messages")
                     
                     # Track message offset

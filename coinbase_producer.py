@@ -59,6 +59,7 @@ async def stream_coinbase():
             while True:
 
                 retries = 0
+                message_count = 0
                 while retries < 10:
 
                     try:
@@ -78,7 +79,11 @@ async def stream_coinbase():
                             key=serialized.key,
                             value=serialized.value
                         )
-                        logger.info(f"Produced a message to Kafka")
+
+                        message_count += 1
+
+                        if message_count % 1000 == 0:
+                            logger.info(f"Produced {message_count} messages to Kafka")
                     
                     # Exception for closed Kafka connection
                     except websockets.ConnectionClosed as e:
