@@ -108,8 +108,8 @@ async def stream_coinbase():
             logger.error(f"Connection error: {e}")
             await asyncio.sleep(60)
         
-    print("Maximum retries exceed. \Exited out of streaming")
-    logger.info("Maximum retries exceed. Exited out of streaming")
+    print("Maximum retries exceeded. Exited out of streaming")
+    logger.info("Maximum retries exceeded. Exited out of streaming")
 
 
 
