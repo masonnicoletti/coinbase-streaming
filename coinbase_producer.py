@@ -14,7 +14,7 @@ logging.basicConfig(
     filename='./logs/coinbase_producer.log',
     level=logging.INFO, 
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filemode='w'
+    filemode='a'
 )
 logger = logging.getLogger(__name__)
 
@@ -33,34 +33,36 @@ async def stream_coinbase():
         name="crypto-stream",
         value_serializer="json")
     logger.info("Connected to Kafka topic")
-    
-    try:
-        # Connect to Coinbase websocket
-        websocket = await websockets.connect(
-            websocket_uri,
-            ping_interval=20,
-            ping_timeout=20,
-            close_timeout=30
-        )
-        logger.info("Connected to Coinbase websocket")
 
-        # Define channels to listen to over websocket
-        subscribe_payload = {
-        "type": "subscribe",
-        "channels": [{"name": "ticker", "product_ids": ["BTC-USD", "ETH-USD", "SOL-USD"]}]
-        }
+    # Create buffer and exit condition for retries
+    retries = 0
+    while retries < 10:
 
-        # Send data over websocket connection
-        await websocket.send(json.dumps(subscribe_payload)) 
-        
-        with app.get_producer() as producer:
-            logger.info("Start streaming from Coinbase websocket")
+        try:
+            # Connect to Coinbase websocket
+            websocket = await websockets.connect(
+                websocket_uri,
+                ping_interval=20,
+                ping_timeout=20,
+                close_timeout=30
+            )
+            logger.info("Connected to Coinbase websocket")
 
-            while True:
+            # Define channels to listen to over websocket
+            subscribe_payload = {
+            "type": "subscribe",
+            "channels": [{"name": "ticker", "product_ids": ["BTC-USD", "ETH-USD", "SOL-USD"]}]
+            }
 
-                retries = 0
+            # Send data over websocket connection
+            await websocket.send(json.dumps(subscribe_payload)) 
+            
+            with app.get_producer() as producer:
+                logger.info("Start streaming from Coinbase websocket")
+
                 message_count = 0
-                while retries < 10:
+
+                while True:
 
                     try:
                         # Receive messages from websocket
@@ -91,6 +93,7 @@ async def stream_coinbase():
                         print(f"Connection closed: {e}")
                         logger.error(f"Connection closed: {e}")
                         await asyncio.sleep(5)
+                        break
                     
                     # Exception for other errors
                     except Exception as e:
@@ -98,11 +101,16 @@ async def stream_coinbase():
                         print(f"Error: {e}")
                         logger.error(f"Error: {e}")
                         await asyncio.sleep(5)
+                        break
     
-    except Exception as e:
-        print(f"Connection error: {e}")
-        logger.error(f"Connection error: {e}")
-        await asyncio.sleep(60)
+        except Exception as e:
+            print(f"Connection error: {e}")
+            logger.error(f"Connection error: {e}")
+            await asyncio.sleep(60)
+        
+        print("Maximum retries exceed. Exited out of streaming")
+        logger.info("Maximum retries exceed. Exited out of streaming")
+
 
 
 if __name__ == "__main__":
