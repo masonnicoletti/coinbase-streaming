@@ -1,6 +1,7 @@
 import logging
 import duckdb
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 logging.basicConfig(
@@ -24,9 +25,7 @@ def data_vis():
 
         # Extract and plot Bitcoin price over time
         bitcoin_timeseries = con.execute("""
-            SELECT price, time 
-            FROM bitcoin
-            ORDER BY time DESC;
+            SELECT price, time FROM bitcoin;
         """).df()
 
         plt.plot(bitcoin_timeseries['time'], bitcoin_timeseries['price'], color='#f7931a')
@@ -39,9 +38,7 @@ def data_vis():
 
         # Extract and plot Ethereum price over time
         ethereum_timeseries = con.execute("""
-            SELECT price, time 
-            FROM ethereum
-            ORDER BY time DESC;
+            SELECT price, time FROM ethereum;
         """).df()
 
         plt.plot(ethereum_timeseries['time'], ethereum_timeseries['price'], color='#4043AE')
@@ -55,9 +52,7 @@ def data_vis():
 
         # Extract and plot Solana price over time
         solana_timeseries = con.execute("""
-            SELECT price, time 
-            FROM solana
-            ORDER BY time DESC;
+            SELECT price, time FROM solana;
         """).df()
 
         plt.plot(solana_timeseries['time'], solana_timeseries['price'], color='#14F195')
@@ -67,6 +62,27 @@ def data_vis():
         plt.savefig("./plots/solana_timeseries.png")
         plt.close()
         logger.info("Produced Solana timeseries plot")
+
+
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+        ax2 = ax1.twinx()
+        ax3 = ax1.twinx()
+        ax3.spines['right'].set_position(('outward', 60))
+        sns.lineplot(data=bitcoin_timeseries, x='time', y='price', ax=ax1, color='#f7931a', label='Bitcoin', estimator=None)
+        sns.lineplot(data=ethereum_timeseries, x='time', y='price', ax=ax2, color='#4043AE', label='Ethereum', estimator=None)
+        sns.lineplot(data=solana_timeseries, x='time', y='price', ax=ax3, color='#14F195', label='Solana', estimator=None)
+        ax1.set_xlabel("Date")
+        ax1.set_ylabel("Bitcoin", color='#f7931a')
+        ax2.set_ylabel("Ethereum", color='#4043AE')
+        ax3.set_ylabel("Solana", color='#14F195')
+        ax1.tick_params(axis='y', labelcolor='#f7931a')
+        ax2.tick_params(axis='y', labelcolor='#4043AE')
+        ax3.tick_params(axis='y', labelcolor='#14F195')
+        plt.title("Coinbase Product Timeseries")
+        plt.legend()
+        fig.tight_layout()
+        plt.savefig("./plots/coinbase_timeseries.png")
+        plt.close()
 
 
         # Close DuckDB connection
