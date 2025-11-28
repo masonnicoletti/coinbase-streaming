@@ -67,6 +67,7 @@ def data_vis():
         logger.info("Produced Solana timeseries plot")
 
 
+        # Plot timeseries of all product prices
         fig, ax1 = plt.subplots(figsize=(10, 6))
         ax2 = ax1.twinx()
         ax3 = ax1.twinx()
@@ -106,6 +107,37 @@ def data_vis():
         plt.savefig("./plots/trades_by_day.png")
         plt.close()
         logger.info("Produced daily trades plot")
+
+
+        # Extract and plot buy-to-sell ratio as timeseries per product
+        product_dict = {"bitcoin": "BTC-USD", "ethereum": "ETH-USD", "solana": "SOL-USD"}
+        buy_sell_timeseries = {}
+        for product, symbol in product_dict.items():
+            buy_sell_timeseries[product] = con.execute(f"""
+                SELECT date, product_id, buy_to_sell_ratio FROM daily_summary
+                WHERE product_id = '{symbol}'
+                ORDER BY date, product_id;
+            """).df()
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.lineplot(data=buy_sell_timeseries['bitcoin'], x='date', y='buy_to_sell_ratio',
+                    color='#f7931a', linewidth = 3, label='Bitcoin', estimator=None)
+        sns.lineplot(data=buy_sell_timeseries['ethereum'], x='date', y='buy_to_sell_ratio', 
+                    color='#4043AE', linewidth = 3, label='Ethereum', estimator=None)
+        sns.lineplot(data=buy_sell_timeseries['solana'], x='date', y='buy_to_sell_ratio', 
+                    color='#14F195', linewidth = 3, label='Solana', estimator=None)
+        sns.set_style()
+        # Get min/max dates from all products combined
+        all_dates = pd.concat([df['date'] for df in buy_sell_timeseries.values()])
+        plt.hlines(y=1.0, xmin=all_dates.min(), xmax=all_dates.max(), colors='grey', linestyles='dashed')
+        plt.xlabel("Date")
+        plt.ylabel("Product")
+        plt.title("Coinbase Product Timeseries")
+        plt.legend(title="Buy-to-Sell Ratio")
+        fig.tight_layout()
+        plt.savefig("./plots/product_buy_to_sell.png")
+        plt.close()
+        logger.info("Produced buy-to-sell timeseries per product")
 
 
 
