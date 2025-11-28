@@ -25,7 +25,8 @@ def data_vis():
 
         # Extract and plot Bitcoin price over time
         bitcoin_timeseries = con.execute("""
-            SELECT price, time FROM bitcoin;
+            SELECT price, time FROM bitcoin
+            ORDER BY time;
         """).df()
 
         plt.plot(bitcoin_timeseries['time'], bitcoin_timeseries['price'], color='#f7931a')
@@ -38,7 +39,8 @@ def data_vis():
 
         # Extract and plot Ethereum price over time
         ethereum_timeseries = con.execute("""
-            SELECT price, time FROM ethereum;
+            SELECT price, time FROM ethereum
+            ORDER BY time;
         """).df()
 
         plt.plot(ethereum_timeseries['time'], ethereum_timeseries['price'], color='#4043AE')
@@ -52,7 +54,8 @@ def data_vis():
 
         # Extract and plot Solana price over time
         solana_timeseries = con.execute("""
-            SELECT price, time FROM solana;
+            SELECT price, time FROM solana
+            ORDER BY time;
         """).df()
 
         plt.plot(solana_timeseries['time'], solana_timeseries['price'], color='#14F195')
