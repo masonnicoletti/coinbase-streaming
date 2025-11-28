@@ -83,6 +83,27 @@ def data_vis():
         fig.tight_layout()
         plt.savefig("./plots/coinbase_timeseries.png")
         plt.close()
+        logger.info("Produced Coinbase product timeseries")
+
+
+        # Extract and plot for transactions through the week
+        trades_by_day = con.execute("""
+            SELECT day_number, COUNT(day_number)
+            FROM temporal_analysis
+            GROUP BY day_number;
+        """).df()
+        day_of_week_dict = {1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"}
+        trades_by_day['day_number'] = trades_by_day['day_number'].replace(day_of_week_dict)
+        trades_by_day.columns = ['day_of_week', 'num_trades']
+
+        plt.bar(trades_by_day['day_of_week'], trades_by_day['num_trades']/1000, color="indigo")
+        plt.title("Coinbase Trades by Day")
+        plt.xlabel("Day of Week")
+        plt.ylabel("Number of Trades (1000)")
+        plt.savefig("./plots/trades_by_day.png")
+        plt.close()
+        logger.info("Produced daily trades plot")
+
 
 
         # Close DuckDB connection

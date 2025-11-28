@@ -105,7 +105,7 @@ def data_analytics():
                 price, 
                 side, 
                 HOUR(time) AS hour,
-                DAYOFWEEK(time) AS day_of_week,
+                DAYOFWEEK(time) AS day_number,
                 CASE DAYOFWEEK(time)
                     WHEN 1 THEN 'Monday'
                     WHEN 2 THEN 'Tuesday'
