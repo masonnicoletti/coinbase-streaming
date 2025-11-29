@@ -13,7 +13,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def data_vis():
+def produce_plots():
     
     con = None
 
@@ -121,18 +121,18 @@ def data_vis():
         
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.lineplot(data=buy_sell_timeseries['bitcoin'], x='date', y='buy_to_sell_ratio',
-                    color='#f7931a', linewidth = 3, label='Bitcoin', estimator=None)
+                    color='#f7931a', linewidth=3, marker='o', label='Bitcoin', estimator=None)
         sns.lineplot(data=buy_sell_timeseries['ethereum'], x='date', y='buy_to_sell_ratio', 
-                    color='#4043AE', linewidth = 3, label='Ethereum', estimator=None)
+                    color='#4043AE', linewidth=3, marker='o', label='Ethereum', estimator=None)
         sns.lineplot(data=buy_sell_timeseries['solana'], x='date', y='buy_to_sell_ratio', 
-                    color='#14F195', linewidth = 3, label='Solana', estimator=None)
-        sns.set_style()
-        # Get min/max dates from all products combined
-        all_dates = pd.concat([df['date'] for df in buy_sell_timeseries.values()])
-        plt.hlines(y=1.0, xmin=all_dates.min(), xmax=all_dates.max(), colors='grey', linestyles='dashed')
+                    color='#14F195', linewidth=3, marker='o', label='Solana', estimator=None)
+        ax.axhline(y=1, color='grey', linestyle='--')
+        ax.axhspan(ax.get_ylim()[0], 1, facecolor='red', alpha=0.1)
+        ax.axhspan(1, ax.get_ylim()[1], facecolor='green', alpha=0.1)
         plt.xlabel("Date")
         plt.ylabel("Product")
         plt.title("Coinbase Product Timeseries")
+        plt.xticks(rotation=45)
         plt.legend(title="Buy-to-Sell Ratio")
         fig.tight_layout()
         plt.savefig("./plots/product_buy_to_sell.png")
@@ -152,4 +152,4 @@ def data_vis():
 
 
 if __name__ == "__main__":
-    data_vis()
+    produce_plots()
