@@ -90,7 +90,7 @@ def produce_plots():
         logger.info("Produced Coinbase product timeseries")
 
 
-        # Extract and plot for transactions through the week
+        # Extract and plot transactions through the week
         trades_by_day = con.execute("""
             SELECT day_number, COUNT(day_number)
             FROM temporal_analysis
@@ -104,9 +104,9 @@ def produce_plots():
         plt.title("Coinbase Trades by Day")
         plt.xlabel("Day of Week")
         plt.ylabel("Number of Trades (1000)")
-        plt.savefig("./plots/trades_by_day.png")
+        plt.savefig("./plots/daily_volume.png")
         plt.close()
-        logger.info("Produced daily trades plot")
+        logger.info("Produced daily volume plot")
 
 
         # Extract and plot buy-to-sell ratio as timeseries per product
@@ -139,6 +139,28 @@ def produce_plots():
         plt.close()
         logger.info("Produced buy-to-sell timeseries per product")
 
+
+        # Extract and plot average total transactions per hour
+        hourly_transactions = con.execute("""
+            WITH daily_trades AS(
+                SELECT date, hour, COUNT(side) as total_trades
+                FROM temporal_analysis
+                GROUP BY date, hour
+            )
+            SELECT hour, AVG(total_trades) AS avg_hourly_volume
+            FROM daily_trades
+            GROUP BY hour
+            ORDER BY hour;
+        """).df()
+
+        sns.barplot(hourly_transactions, x='hour', y='avg_hourly_volume', color='navy')
+        plt.title("Average Hourly Volume on Coinbase")
+        plt.xlabel("Hour of the Day")
+        plt.ylabel("Average Transactions")
+        plt.tight_layout()
+        plt.savefig("./plots/hourly_volume.png")
+        plt.close()
+        logger.info("Produced average hourly volume plot")
 
 
         # Close DuckDB connection

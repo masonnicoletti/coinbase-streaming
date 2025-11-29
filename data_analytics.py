@@ -100,7 +100,8 @@ def data_analytics():
         # Create a table for temporal analysis
         con.execute("""
             CREATE OR REPLACE TABLE temporal_analysis AS
-            SELECT 
+            SELECT
+                DATE(time) AS date, 
                 product_id,
                 price, 
                 side, 
