@@ -10,3 +10,7 @@ logs/*
 coinbase.duckdb
 *.duckdb
 *.db
+
+# Ignore old work
+work
+work/*
