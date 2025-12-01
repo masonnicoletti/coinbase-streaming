@@ -1,4 +1,4 @@
-# market-data-streaming
+# coinbase-streaming
 ### DS 3022 
 Data Project 3
 
