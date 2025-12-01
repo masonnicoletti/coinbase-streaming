@@ -96,11 +96,12 @@ def produce_plots():
             FROM temporal_analysis
             GROUP BY day_number;
         """).df()
-        day_of_week_dict = {1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"}
+        day_of_week_dict = {0: "Sun", 1: "Mon", 2: "Tues", 3: "Wed", 4: "Thurs", 5: "Fri", 6: "Sat"}
         trades_by_day['day_number'] = trades_by_day['day_number'].replace(day_of_week_dict)
         trades_by_day.columns = ['day_of_week', 'num_trades']
-
-        plt.bar(trades_by_day['day_of_week'], trades_by_day['num_trades']/1000, color="indigo")
+        trades_by_day['num_trades'] = trades_by_day['num_trades'] / 1000
+        
+        sns.barplot(data=trades_by_day, x='day_of_week', y='num_trades', color="indigo")
         plt.title("Coinbase Trades by Day")
         plt.xlabel("Day of Week")
         plt.ylabel("Number of Trades (1000)")
@@ -163,6 +164,20 @@ def produce_plots():
         logger.info("Produced average hourly volume plot")
 
 
+        # Extract and plot distribution of Coinbase products
+        product_ratio = con.execute("""
+            SELECT product_id, COUNT(product_id) as total_trades
+            FROM coinbase_ticker
+            GROUP BY product_id;
+        """).df()
+
+        plt.pie(product_ratio['total_trades'], labels=product_ratio['product_id'])
+        plt.title("Distribution of Coinbase Product Transactions")
+        plt.savefig("./plots/product_distribution.png")
+        plt.close()
+        logger.info("Produce product distribution plot")
+
+        
         # Close DuckDB connection
         con.close()
         logger.info("Closed DuckDB connection")
