@@ -86,9 +86,9 @@ def data_analytics():
                 AVG(price) AS avg_price,
                 MAX(price) AS max_price,
                 MIN(price) AS min_price,
-                AVG(volume_24h) AS daily_volume,
                 SUM(side = 'buy') AS total_buys,
                 SUM(side = 'sell') AS total_sells,
+                (total_buys + total_sells) AS volume,
                 total_buys/total_sells AS buy_to_sell_ratio
             FROM coinbase_ticker
             GROUP BY date, product_id
