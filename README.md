@@ -19,7 +19,7 @@ Data Project 3
         run `coinbase_consumer.py`
 5) Store the data for analysis\
         run `data_storage.py`\
-        run `data_analysis.py`
+        run `data_analytics.py`
 6) Create visualizations and start a dashboard\
         run `data_visualizations.py`\
         run `daily_dashboard.py`
