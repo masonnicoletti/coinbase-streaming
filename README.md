@@ -1,6 +1,9 @@
 # coinbase-streaming
+
 ### DS 3022 
 Data Project 3
+
+**Objective:** Stream live Coinbase data and perform analysis on the findings.
 
 
 #### Coinbase Websocket Documentation
@@ -13,7 +16,7 @@ Data Project 3
 2) Create a virtual environment and install requirements\
         `pipenv shell` or `python3 -m venv .venv` `source .venv/bin/activate`\
         `pip install -r requirements.txt`
-3) Stream from the Coinbase websocket and run Kafka producer\
+3) Stream from the Coinbase websocket and run the Kafka producer\
         run `coinbase_producer.py`
 4) Run the Kafka consumer and save data locally\
         run `coinbase_consumer.py`
