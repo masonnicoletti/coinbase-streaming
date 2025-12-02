@@ -36,8 +36,6 @@ def produce_daily_dash():
             WHERE DATE(time) = DATE('{current_date}')
             ORDER BY time;
         """).df()
-        print(daily_summary_df.head())
-        print(daily_summary_df.shape)
         logger.info("Extracted daily Coinbase data")
 
         # Close DuckDB connection
