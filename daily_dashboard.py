@@ -119,46 +119,6 @@ def update_price_timeseries(selected_products):
     fig = px.line(filtered_df, x='time', y='price', 
         color='product_id', title='Daily Price Timeseries'
     )
-    
-    '''
-    fig = go.Figure()
-
-        # Loop through each selected crypto and add a dedicated axis
-    for i, product in enumerate(selected_products):
-        product_df = filtered_df[filtered_df['product_id'] == product]
-
-        axis_name = f"y{i+1}"
-        show_axis = True if i > 0 else False
-
-        fig.add_trace(
-            go.Scatter(
-                x=df_prod["time"],
-                y=df_prod["price"],
-                name=product,
-                yaxis=axis_name
-            )
-        )
-
-        # Add axis definition
-        fig.update_layout(
-            **{
-                f"{axis_name}axis": dict(
-                    title=product,
-                    anchor="x",
-                    overlaying="y" if i > 0 else None,
-                    side="right" if i % 2 == 1 else "left",
-                    position=1.0 if i > 0 else None,
-                )
-            }
-        )
-
-    fig.update_layout(
-        title="Daily Price Timeseries",
-        xaxis_title="Time",
-        yaxis_title="Product",
-        template="plotly_white"
-    )
-    '''
 
     return fig
 
